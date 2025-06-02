@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ShoreSquad - Beach Cleanup Community</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <h2>🌊 ShoreSquad</h2>
+            </div>
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="#home" class="nav-link">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a href="#events" class="nav-link">Events</a>
+                </li>
+                <li class="nav-item">
+                    <a href="#impact" class="nav-link">Impact</a>
+                </li>
+                <li class="nav-item">
+                    <a href="#join" class="nav-link">Join Us</a>
+                </li>
+            </ul>
+            <div class="hamburger">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="home" class="hero">
+        <div class="hero-content">
+            <h1>Clean Beaches, Better Future</h1>
+            <p>Join our community of ocean warriors making a real difference. Together, we can restore our coastlines and protect marine life.</p>
+            <div class="hero-buttons">
+                <button class="btn-primary" onclick="scrollToSection('events')">Find Cleanup Events</button>
+                <button class="btn-secondary" onclick="openModal('joinModal')">Join ShoreSquad</button>
+            </div>
+        </div>
+        <div class="hero-stats">
+            <div class="stat">
+                <h3 id="beaches-cleaned">247</h3>
+                <p>Beaches Cleaned</p>
+            </div>
+            <div class="stat">
+                <h3 id="trash-collected">15,642</h3>
+                <p>Kg Trash Collected</p>
+            </div>
+            <div class="stat">
+                <h3 id="volunteers">3,891</h3>
+                <p>Active Volunteers</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Events Section -->
+    <section id="events" class="events-section">
+        <div class="container">
+            <h2>Upcoming Cleanup Events</h2>
+            <p class="section-subtitle">Join us at these upcoming beach cleanup events and make a difference!</p>
+            
+            <div class="events-grid" id="events-grid">
+                <!-- Events will be dynamically loaded here -->
+            </div>
+            
+            <div class="events-actions">
+                <button class="btn-primary" onclick="openModal('createEventModal')">Create New Event</button>
+                <button class="btn-secondary" onclick="loadMoreEvents()">Load More Events</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Impact Section -->
+    <section id="impact" class="impact-section">
+        <div class="container">
+            <h2>Our Environmental Impact</h2>
+            <div class="impact-grid">
+                <div class="impact-card">
+                    <div class="impact-icon">🐠</div>
+                    <h3>Marine Life Protected</h3>
+                    <p class="impact-number">2,847</p>
+                    <p>Sea creatures saved from plastic pollution</p>
+                </div>
+                <div class="impact-card">
+                    <div class="impact-icon">♻️</div>
+                    <h3>Recycled Materials</h3>
+                    <p class="impact-number">12,094 kg</p>
+                    <p>Waste properly recycled and processed</p>
+                </div>
+                <div class="impact-card">
+                    <div class="impact-icon">🌱</div>
+                    <h3>Carbon Footprint Reduced</h3>
+                    <p class="impact-number">45.2 tons</p>
+                    <p>CO2 equivalent prevented from entering atmosphere</p>
+                </div>
+                <div class="impact-card">
+                    <div class="impact-icon">🏖️</div>
+                    <h3>Coastline Restored</h3>
+                    <p class="impact-number">428 km</p>
+                    <p>Of beautiful beaches restored to their natural state</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Join Section -->
+    <section id="join" class="join-section">
+        <div class="container">
+            <h2>Ready to Make a Difference?</h2>
+            <p>Join thousands of volunteers working together to protect our oceans and coastlines.</p>
+            <button class="btn-primary btn-large" onclick="openModal('joinModal')">Join ShoreSquad Today</button>
+        </div>
+    </section>
+
+    <!-- Join Modal -->
+    <div id="joinModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('joinModal')">&times;</span>
+            <h3>Join ShoreSquad</h3>
+            <form id="joinForm">
+                <div class="form-group">
+                    <label for="name">Full Name</label>
+                    <input type="text" id="name" name="name" required>
+                </div>
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" name="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="location">Location</label>
+                    <input type="text" id="location" name="location" placeholder="City, Country" required>
+                </div>
+                <div class="form-group">
+                    <label for="experience">Experience Level</label>
+                    <select id="experience" name="experience" required>
+                        <option value="">Select your experience</option>
+                        <option value="beginner">Beginner</option>
+                        <option value="intermediate">Intermediate</option>
+                        <option value="advanced">Advanced</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="motivation">Why do you want to join?</label>
+                    <textarea id="motivation" name="motivation" rows="4" placeholder="Tell us about your motivation..."></textarea>
+                </div>
+                <button type="submit" class="btn-primary">Join Now</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Create Event Modal -->
+    <div id="createEventModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('createEventModal')">&times;</span>
+            <h3>Create Cleanup Event</h3>
+            <form id="eventForm">
+                <div class="form-group">
+                    <label for="eventTitle">Event Title</label>
+                    <input type="text" id="eventTitle" name="eventTitle" required>
+                </div>
+                <div class="form-group">
+                    <label for="eventDate">Date</label>
+                    <input type="date" id="eventDate" name="eventDate" required>
+                </div>
+                <div class="form-group">
+                    <label for="eventTime">Time</label>
+                    <input type="time" id="eventTime" name="eventTime" required>
+                </div>
+                <div class="form-group">
+                    <label for="eventLocation">Location</label>
+                    <input type="text" id="eventLocation" name="eventLocation" placeholder="Beach name or address" required>
+                </div>
+                <div class="form-group">
+                    <label for="eventDescription">Description</label>
+                    <textarea id="eventDescription" name="eventDescription" rows="4" placeholder="Describe the cleanup event..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="maxParticipants">Max Participants</label>
+                    <input type="number" id="maxParticipants" name="maxParticipants" min="1" max="500" value="50">
+                </div>
+                <button type="submit" class="btn-primary">Create Event</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>🌊 ShoreSquad</h3>
+                    <p>Building a community of ocean warriors dedicated to protecting our planet's coastlines.</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="#home">Home</a></li>
+                        <li><a href="#events">Events</a></li>
+                        <li><a href="#impact">Impact</a></li>
+                        <li><a href="#join">Join Us</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Contact</h4>
+                    <p>Email: hello@shoresquad.org</p>
+                    <p>Phone: +1 (555) 123-WAVE</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 ShoreSquad. Together for cleaner oceans.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/script.js"></script>
+</body>
+</html>
