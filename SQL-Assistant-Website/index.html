@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ShoreSquad SQL Assistant</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .demo-notice {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .panel {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .panel h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .assistant-panel {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+
+        .assistant-panel h2 {
+            color: white;
+        }
+
+        .chat-container {
+            height: 400px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            margin-bottom: 15px;
+            max-height: 300px;
+        }
+
+        .message {
+            margin-bottom: 15px;
+            padding: 10px 15px;
+            border-radius: 20px;
+            max-width: 80%;
+            word-wrap: break-word;
+        }
+
+        .user-message {
+            background: rgba(255, 255, 255, 0.2);
+            margin-left: auto;
+            text-align: right;
+        }
+
+        .assistant-message {
+            background: rgba(255, 255, 255, 0.3);
+            margin-right: auto;
+        }
+
+        .query-input {
+            display: flex;
+            gap: 10px;
+        }
+
+        .query-input input {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 25px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+
+        .query-input input::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5a6fd8;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-success {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #45a049;
+        }
+
+        .sql-editor {
+            width: 100%;
+            height: 200px;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            resize: vertical;
+            background: #f8f9fa;
+        }
+
+        .sql-editor:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .results-panel {
+            grid-column: 1 / -1;
+        }
+
+        .results-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .results-table th {
+            background: #667eea;
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .results-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .results-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .schema-info {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .schema-info h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .schema-table {
+            margin-bottom: 15px;
+        }
+
+        .schema-table h4 {
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .schema-table ul {
+            list-style: none;
+            padding-left: 15px;
+        }
+
+        .schema-table li {
+            padding: 3px 0;
+            color: #666;
+        }
+
+        .quick-queries {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .quick-query-btn {
+            padding: 8px 16px;
+            background: #e3f2fd;
+            border: 1px solid #2196f3;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 12px;
+            color: #2196f3;
+            transition: all 0.3s ease;
+        }
+
+        .quick-query-btn:hover {
+            background: #2196f3;
+            color: white;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .error {
+            background: #ffebee;
+            color: #c62828;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+            border-left: 4px solid #c62828;
+        }
+
+        .success {
+            background: #e8f5e8;
+            color: #2e7d32;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+            border-left: 4px solid #2e7d32;
+        }
+
+        .demo-data {
+            background: #fff3cd;
+            color: #856404;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+            border-left: 4px solid #ffc107;
+        }
+
+        .github-link {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 10px 20px;
+            border-radius: 25px;
+            text-decoration: none;
+            color: #333;
+            font-weight: 600;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .github-link:hover {
+            background: white;
+            transform: translateY(-2px);
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .panel {
+                padding: 20px;
+            }
+
+            .github-link {
+                position: relative;
+                top: 0;
+                right: 0;
+                display: block;
+                text-align: center;
+                margin-bottom: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <a href="https://github.com/23038791/jackvibecode" class="github-link" target="_blank">
+        🌊 View on GitHub
+    </a>
+
+    <div class="container">
+        <div class="header">
+            <h1>🌊 ShoreSquad SQL Assistant</h1>
+            <p>AI-powered database query helper for beach cleanup data</p>
+        </div>
+
+        <div class="demo-notice">
+            <strong>📢 Demo Mode:</strong> This is a standalone demo version. Queries will show sample data.
+            <br>
+            <small>Connect to your own backend API for live data!</small>
+        </div>
+
+        <div class="main-content">
+            <!-- AI Assistant Panel -->
+            <div class="panel assistant-panel">
+                <h2>🤖 AI Query Assistant</h2>
+                <div class="chat-container">
+                    <div class="chat-messages" id="chatMessages">
+                        <div class="message assistant-message">
+                            <strong>SQL Assistant:</strong> Hi! I'm here to help you write SQL queries for the ShoreSquad database. Ask me anything like "Show me all upcoming events" or "How many volunteers joined this month?"
+                        </div>
+                    </div>
+                    <div class="query-input">
+                        <input type="text" id="assistantInput" placeholder="Ask me about the database..." onkeypress="handleAssistantEnter(event)">
+                        <button class="btn btn-secondary" onclick="askAssistant()">Ask</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SQL Editor Panel -->
+            <div class="panel">
+                <h2>📝 SQL Editor</h2>
+                
+                <div class="schema-info">
+                    <h3>Database Schema</h3>
+                    <div class="schema-table">
+                        <h4>events</h4>
+                        <ul>
+                            <li>id (INTEGER PRIMARY KEY)</li>
+                            <li>title (TEXT)</li>
+                            <li>date (TEXT)</li>
+                            <li>time (TEXT)</li>
+                            <li>location (TEXT)</li>
+                            <li>description (TEXT)</li>
+                            <li>max_participants (INTEGER)</li>
+                            <li>current_participants (INTEGER)</li>
+                            <li>created_at (DATETIME)</li>
+                        </ul>
+                    </div>
+                    <div class="schema-table">
+                        <h4>volunteers</h4>
+                        <ul>
+                            <li>id (INTEGER PRIMARY KEY)</li>
+                            <li>name (TEXT)</li>
+                            <li>email (TEXT)</li>
+                            <li>location (TEXT)</li>
+                            <li>experience (TEXT)</li>
+                            <li>motivation (TEXT)</li>
+                            <li>join_date (DATETIME)</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="quick-queries">
+                    <button class="quick-query-btn" onclick="setQuery('SELECT * FROM events ORDER BY date DESC')">All Events</button>
+                    <button class="quick-query-btn" onclick="setQuery('SELECT * FROM volunteers ORDER BY join_date DESC')">All Volunteers</button>
+                    <button class="quick-query-btn" onclick="setQuery('SELECT COUNT(*) as total_events FROM events')">Count Events</button>
+                    <button class="quick-query-btn" onclick="setQuery('SELECT location, COUNT(*) as event_count FROM events GROUP BY location')">Events by Location</button>
+                </div>
+
+                <textarea class="sql-editor" id="sqlQuery" placeholder="Enter your SQL query here..."></textarea>
+                
+                <div style="margin-top: 15px; display: flex; gap: 10px;">
+                    <button class="btn btn-primary" onclick="executeQuery()">Execute Query (Demo)</button>
+                    <button class="btn btn-secondary" onclick="clearQuery()">Clear</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results Panel -->
+        <div class="panel results-panel">
+            <h2>📊 Query Results</h2>
+            <div id="queryResults"></div>
+        </div>
+    </div>
+
+    <script>
+        // Demo data for standalone version
+        const demoData = {
+            events: [
+                {
+                    id: 1,
+                    title: "Sunrise Beach Cleanup - Marina Bay",
+                    date: "2025-06-15",
+                    time: "07:00",
+                    location: "Marina Bay Beach, Singapore",
+                    description: "Join us for an early morning cleanup at one of Singapore's most iconic beaches.",
+                    max_participants: 50,
+                    current_participants: 23,
+                    created_at: "2025-06-01T10:00:00Z"
+                },
+                {
+                    id: 2,
+                    title: "Family-Friendly Cleanup - East Coast",
+                    date: "2025-06-20",
+                    time: "09:00",
+                    location: "East Coast Park, Singapore",
+                    description: "Perfect for families! Bring your kids for a fun and educational beach cleanup experience.",
+                    max_participants: 75,
+                    current_participants: 34,
+                    created_at: "2025-06-02T14:30:00Z"
+                },
+                {
+                    id: 3,
+                    title: "Corporate Volunteer Day - Sentosa",
+                    date: "2025-06-25",
+                    time: "14:00",
+                    location: "Siloso Beach, Sentosa",
+                    description: "Corporate teams welcome! A great team building activity while making a positive environmental impact.",
+                    max_participants: 100,
+                    current_participants: 67,
+                    created_at: "2025-06-03T09:15:00Z"
+                }
+            ],
+            volunteers: [
+                {
+                    id: 1,
+                    name: "Sarah Chen",
+                    email: "sarah.chen@email.com",
+                    location: "Singapore",
+                    experience: "intermediate",
+                    motivation: "I love the ocean and want to protect marine life for future generations.",
+                    join_date: "2025-06-01T08:00:00Z"
+                },
+                {
+                    id: 2,
+                    name: "Mike Johnson",
+                    email: "mike.j@email.com",
+                    location: "Malaysia",
+                    experience: "beginner",
+                    motivation: "First time joining but excited to make a difference!",
+                    join_date: "2025-06-05T12:30:00Z"
+                },
+                {
+                    id: 3,
+                    name: "Lisa Wong",
+                    email: "lisa.w@email.com",
+                    location: "Singapore",
+                    experience: "advanced",
+                    motivation: "Environmental science student passionate about conservation.",
+                    join_date: "2025-06-10T14:20:00Z"
+                }
+            ]
+        };
+
+        // AI Assistant Functions
+        const queryTemplates = {
+            'events': 'SELECT * FROM events ORDER BY date DESC',
+            'volunteers': 'SELECT * FROM volunteers ORDER BY join_date DESC',
+            'upcoming events': 'SELECT * FROM events WHERE date >= date("now") ORDER BY date ASC',
+            'past events': 'SELECT * FROM events WHERE date < date("now") ORDER BY date DESC',
+            'count events': 'SELECT COUNT(*) as total_events FROM events',
+            'count volunteers': 'SELECT COUNT(*) as total_volunteers FROM volunteers',
+            'events by location': 'SELECT location, COUNT(*) as event_count FROM events GROUP BY location ORDER BY event_count DESC',
+            'volunteers by experience': 'SELECT experience, COUNT(*) as volunteer_count FROM volunteers GROUP BY experience ORDER BY volunteer_count DESC',
+            'recent volunteers': 'SELECT * FROM volunteers WHERE join_date >= date("now", "-30 days") ORDER BY join_date DESC',
+            'events this month': 'SELECT * FROM events WHERE date >= date("now", "start of month") AND date < date("now", "start of month", "+1 month") ORDER BY date ASC',
+            'full events': 'SELECT * FROM events WHERE current_participants >= max_participants',
+            'available events': 'SELECT *, (max_participants - current_participants) as available_spots FROM events WHERE current_participants < max_participants AND date >= date("now") ORDER BY date ASC'
+        };
+
+        function askAssistant() {
+            const input = document.getElementById('assistantInput');
+            const question = input.value.trim();
+            
+            if (!question) return;
+            
+            addMessage('user', question);
+            input.value = '';
+            
+            // Show loading
+            const loadingId = addMessage('assistant', '<div class="loading"></div> Thinking...');
+            
+            setTimeout(() => {
+                const response = generateResponse(question);
+                updateMessage(loadingId, response);
+            }, 1000);
+        }
+
+        function generateResponse(question) {
+            const lowerQuestion = question.toLowerCase();
+            
+            // Find matching template
+            for (const [key, query] of Object.entries(queryTemplates)) {
+                if (lowerQuestion.includes(key)) {
+                    setQuery(query);
+                    return `I've generated a SQL query for "${key}". The query has been loaded into the editor. Click "Execute Query (Demo)" to run it with sample data!`;
+                }
+            }
+            
+            // Pattern matching for common queries
+            if (lowerQuestion.includes('how many') || lowerQuestion.includes('count')) {
+                if (lowerQuestion.includes('event')) {
+                    setQuery('SELECT COUNT(*) as total_events FROM events');
+                    return 'I\'ve created a query to count all events. You can modify it to add filters if needed!';
+                } else if (lowerQuestion.includes('volunteer')) {
+                    setQuery('SELECT COUNT(*) as total_volunteers FROM volunteers');
+                    return 'I\'ve created a query to count all volunteers. You can modify it to add filters if needed!';
+                }
+            }
+            
+            if (lowerQuestion.includes('show') || lowerQuestion.includes('list') || lowerQuestion.includes('get')) {
+                if (lowerQuestion.includes('event')) {
+                    setQuery('SELECT * FROM events ORDER BY date DESC');
+                    return 'I\'ve created a query to show all events. You can add WHERE clauses to filter the results!';
+                } else if (lowerQuestion.includes('volunteer')) {
+                    setQuery('SELECT * FROM volunteers ORDER BY join_date DESC');
+                    return 'I\'ve created a query to show all volunteers. You can add WHERE clauses to filter the results!';
+                }
+            }
+            
+            // Default helpful response
+            return `I can help you with queries like:
+            • "Show me all events"
+            • "Count volunteers"
+            • "Events by location"
+            • "Upcoming events"
+            • "Recent volunteers"
+            
+            Try asking about events, volunteers, or specific data you'd like to see!`;
+        }
+
+        function addMessage(type, content) {
+            const messagesDiv = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            const messageId = 'msg-' + Date.now();
+            messageDiv.id = messageId;
+            messageDiv.className = `message ${type}-message`;
+            messageDiv.innerHTML = `<strong>${type === 'user' ? 'You' : 'SQL Assistant'}:</strong> ${content}`;
+            messagesDiv.appendChild(messageDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            return messageId;
+        }
+
+        function updateMessage(messageId, content) {
+            const messageDiv = document.getElementById(messageId);
+            if (messageDiv) {
+                messageDiv.innerHTML = `<strong>SQL Assistant:</strong> ${content}`;
+            }
+        }
+
+        function handleAssistantEnter(event) {
+            if (event.key === 'Enter') {
+                askAssistant();
+            }
+        }
+
+        // SQL Editor Functions
+        function setQuery(query) {
+            document.getElementById('sqlQuery').value = query;
+        }
+
+        function clearQuery() {
+            document.getElementById('sqlQuery').value = '';
+            document.getElementById('queryResults').innerHTML = '';
+        }
+
+        // Demo SQL execution
+        function executeQuery() {
+            const query = document.getElementById('sqlQuery').value.trim();
+            const resultsDiv = document.getElementById('queryResults');
+            
+            if (!query) {
+                resultsDiv.innerHTML = '<div class="error">Please enter a SQL query.</div>';
+                return;
+            }
+            
+            resultsDiv.innerHTML = '<div class="loading"></div> Executing demo query...';
+            
+            setTimeout(() => {
+                const result = executeDemoSQL(query);
+                
+                if (result.error) {
+                    resultsDiv.innerHTML = `<div class="error"><strong>Error:</strong> ${result.error}</div>`;
+                    return;
+                }
+                
+                if (result.results && result.results.length > 0) {
+                    resultsDiv.innerHTML = createTable(result.results) + '<div class="demo-data"><strong>Note:</strong> This is demo data. Connect to a real backend for live results.</div>';
+                } else {
+                    resultsDiv.innerHTML = '<div class="success">Query executed successfully. No results returned.</div>';
+                }
+            }, 800);
+        }
+
+        function executeDemoSQL(query) {
+            const lowerQuery = query.toLowerCase().trim();
+            
+            try {
+                // Simple demo SQL parser
+                if (lowerQuery.includes('select') && lowerQuery.includes('events')) {
+                    if (lowerQuery.includes('count(*)')) {
+                        return { results: [{ total_events: demoData.events.length }] };
+                    }
+                    if (lowerQuery.includes('group by location')) {
+                        const locationCounts = {};
+                        demoData.events.forEach(event => {
+                            locationCounts[event.location] = (locationCounts[event.location] || 0) + 1;
+                        });
+                        const results = Object.entries(locationCounts).map(([location, event_count]) => ({
+                            location,
+                            event_count
+                        }));
+                        return { results };
+                    }
+                    return { results: demoData.events };
+                }
+                
+                if (lowerQuery.includes('select') && lowerQuery.includes('volunteers')) {
+                    if (lowerQuery.includes('count(*)')) {
+                        return { results: [{ total_volunteers: demoData.volunteers.length }] };
+                    }
+                    if (lowerQuery.includes('group by experience')) {
+                        const expCounts = {};
+                        demoData.volunteers.forEach(vol => {
+                            expCounts[vol.experience] = (expCounts[vol.experience] || 0) + 1;
+                        });
+                        const results = Object.entries(expCounts).map(([experience, volunteer_count]) => ({
+                            experience,
+                            volunteer_count
+                        }));
+                        return { results };
+                    }
+                    return { results: demoData.volunteers };
+                }
+                
+                return { error: 'Demo mode: Only basic SELECT queries on events and volunteers tables are supported.' };
+            } catch (error) {
+                return { error: 'Invalid SQL syntax for demo mode.' };
+            }
+        }
+
+        function createTable(results) {
+            if (!results || results.length === 0) {
+                return '<div class="success">No results found.</div>';
+            }
+            
+            const columns = Object.keys(results[0]);
+            
+            let html = '<table class="results-table">';
+            html += '<thead><tr>';
+            columns.forEach(col => {
+                html += `<th>${col}</th>`;
+            });
+            html += '</tr></thead><tbody>';
+            
+            results.forEach(row => {
+                html += '<tr>';
+                columns.forEach(col => {
+                    html += `<td>${row[col] || ''}</td>`;
+                });
+                html += '</tr>';
+            });
+            
+            html += '</tbody></table>';
+            html += `<div style="margin-top: 15px; color: #666; font-size: 14px;">Found ${results.length} result(s)</div>`;
+            
+            return html;
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🌊 ShoreSquad SQL Assistant (Demo) loaded!');
+            
+            // Add initial demo query
+            setQuery('SELECT * FROM events ORDER BY date DESC');
+            
+            // Show welcome message
+            setTimeout(() => {
+                addMessage('assistant', 'Welcome to the demo! Try asking "Show me all events" or click "Execute Query (Demo)" to see sample data.');
+            }, 1000);
+        });
+    </script>
+</body>
+</html>
